@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -28,6 +31,28 @@ public  class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.action_refresh){
+            FetchWeatherTask weatherTask = new FetchWeatherTask();
+            weatherTask.execute("11311");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -48,13 +73,14 @@ public  class ForecastFragment extends Fragment {
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
 
+
         return rootView;
     }
 
-        public class fetchWeatherTask extends AsyncTask<Void,Void,Void>  {
+    public class FetchWeatherTask extends AsyncTask<String,Void,Void>  {
 
             @Override
-            protected Void doInBackground(Void... params) {
+            protected Void doInBackground(String... params) {
 
                 HttpURLConnection urlConnection = null;
                 BufferedReader reader = null;
@@ -66,7 +92,7 @@ public  class ForecastFragment extends Fragment {
                     // Construct the URL for the OpenWeatherMap query
                     // Possible parameters are available at OWM's forecast API page, at
                     // http://openweathermap.org/API#forecast
-                    URL url = new URL("http://api.openweathermap.org/data/2.5/find?q=cai,egypt&cnt=7&units=metric&appid=bea05a71cdae2ce48f40b8cf69388811");
+                    URL url = new URL("http://api.openweathermap.org/data/2.5/find?q=" + params[0] +"&cnt=7&units=metric&appid=bea05a71cdae2ce48f40b8cf69388811");
 
                     // Create the request to OpenWeatherMap, and open the connection
                     urlConnection = (HttpURLConnection) url.openConnection();
@@ -95,6 +121,7 @@ public  class ForecastFragment extends Fragment {
                         forecastJsonStr = null;
                     }
                     forecastJsonStr = buffer.toString();
+                    Log.v("aaa", forecastJsonStr);
                 } catch (IOException e) {
                     Log.e("PlaceholderFragment", "Error ", e);
                     // If the code didn't successfully get the weather data, there's no point in attempting
