@@ -1,5 +1,6 @@
 package com.example.android.sunshine.app;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,8 +94,24 @@ public  class ForecastFragment extends Fragment {
                     // Construct the URL for the OpenWeatherMap query
                     // Possible parameters are available at OWM's forecast API page, at
                     // http://openweathermap.org/API#forecast
-                    URL url = new URL("http://api.openweathermap.org/data/2.5/find?q=" + params[0] +"&cnt=7&units=metric&appid=bea05a71cdae2ce48f40b8cf69388811");
+                    int numDays =7;
+                    String units = "metric";
+                    String format = "JSON";
 
+                    Uri.Builder builder = new Uri.Builder();
+                    builder.scheme("http");
+                    builder.authority("api.openweathermap.org");
+                    builder.path("data/2.5/forecast/daily");
+                    builder.appendQueryParameter("q",params[0]);
+                    builder.appendQueryParameter("cnt", Integer.toString(numDays));
+                    builder.appendQueryParameter("units", units);
+                    builder.appendQueryParameter("mode", format);
+
+                    builder.appendQueryParameter("appid", "bea05a71cdae2ce48f40b8cf69388811");
+
+                    
+
+                   URL url = new URL(builder.toString());
                     // Create the request to OpenWeatherMap, and open the connection
                     urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setRequestMethod("GET");
