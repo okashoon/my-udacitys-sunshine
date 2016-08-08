@@ -7,5 +7,13 @@
     <string name="title_activity_detail">DetailActivity</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="pref_location_label">Location</string>
+    <string name="pref_location_key" translatable="false">Location</string>
+    <string name="pref_location_default" translatable="false">94043</string>
+    <string-array name="temp_pref">
+        <item>metric</item>
+        <item>imperial</item>
+    </string-array>
+
 
 </resources>

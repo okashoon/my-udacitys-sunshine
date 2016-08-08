@@ -1,9 +1,11 @@
 package com.example.android.sunshine.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -37,7 +39,7 @@ import java.util.Date;
 /**
  * Created by ahmed on 19-Jul-16.
  */
-public  class ForecastFragment extends Fragment {
+public  class ForecastFragment extends Fragment  {
 
     ArrayAdapter<String> mForecastAdapter;
 
@@ -49,6 +51,25 @@ public  class ForecastFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+    }
+
+    private void updateWeather(){
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+
+        //get location from settings
+        String location = prefs.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        weatherTask.execute(location);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     @Override
@@ -56,12 +77,13 @@ public  class ForecastFragment extends Fragment {
         inflater.inflate(R.menu.main, menu);
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute("11311");
+
 
             return true;
         }
@@ -77,12 +99,15 @@ public  class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        String[] forecastArray = {"aaa","sss"};
 
-        ArrayList<String> weekForecast = new ArrayList<>(Arrays.asList(forecastArray));
+
+
 
         mForecastAdapter =
-                new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
+                new ArrayAdapter<String>(getActivity(),
+                        R.layout.list_item_forecast,
+                        R.id.list_item_forecast_textview,
+                        new ArrayList<String>());
 
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
@@ -104,6 +129,7 @@ public  class ForecastFragment extends Fragment {
     }
 
     public class FetchWeatherTask extends AsyncTask<String,Void,String[]>  {
+
 
             @Override
             protected String[] doInBackground(String... params) {
@@ -249,9 +275,24 @@ public  class ForecastFragment extends Fragment {
     }
 
     public  String minMaxRounded(double min, double max){
-        String minimum = Long.toString(Math.round(min));
-        String maximum = Long.toString(Math.round(max));
-        return minimum + "/" + maximum;
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String s = sp.getString("pref_temp_key", "metric");
+        if(s.equals("metric")) {
+            String minimum = Long.toString(Math.round(min));
+            String maximum = Long.toString(Math.round(max));
+            Log.d("minmax: ", s);
+            return minimum + "/" + maximum +" C";
+
+        } else{
+            double minImperial = min*9/5+32;
+            double maxImperial = max*9/5+32;
+
+            String minimum = Long.toString(Math.round(minImperial));
+            String maximum = Long.toString(Math.round(maxImperial));
+            Log.d("minmax: ", s);
+            return minimum + "/" + maximum + " F";
+        }
+
     }
 
     public String getReadableDateString(long date){
