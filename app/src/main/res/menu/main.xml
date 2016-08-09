@@ -10,4 +10,9 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_show_on_map"
+        android:orderInCategory="100"
+        android:title="@string/show_on_map"
+        app:showAsAction="never"/>
 </menu>

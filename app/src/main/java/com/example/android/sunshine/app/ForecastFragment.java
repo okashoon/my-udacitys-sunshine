@@ -1,7 +1,9 @@
 package com.example.android.sunshine.app;
 
+import android.app.Notification;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,6 +45,12 @@ public  class ForecastFragment extends Fragment  {
 
     ArrayAdapter<String> mForecastAdapter;
 
+    //get location from settings
+    SharedPreferences prefs;
+
+    String location ;
+
+
 
     public ForecastFragment() {
     }
@@ -57,12 +65,12 @@ public  class ForecastFragment extends Fragment  {
     private void updateWeather(){
         FetchWeatherTask weatherTask = new FetchWeatherTask();
 
-        SharedPreferences prefs = PreferenceManager
+         prefs = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
 
-        //get location from settings
-        String location = prefs.getString(getString(R.string.pref_location_key),
+        location = prefs.getString(getString(R.string.pref_location_key),
                 getString(R.string.pref_location_default));
+
         weatherTask.execute(location);
     }
 
@@ -90,6 +98,17 @@ public  class ForecastFragment extends Fragment  {
         else if (id == R.id.action_settings){
             Intent intent = new Intent(getActivity(),SettingsActivity.class);
             startActivity(intent);
+        }
+        else if (id == R.id.action_show_on_map){
+            Uri mapUri = Uri.parse("geo:0,0?").buildUpon().appendQueryParameter("q",location).build();
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(mapUri);
+            if(intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                 Log.d("location map","couldnt find map application");
+            }
+            Log.d("postal code", mapUri.toString());
         }
         return super.onOptionsItemSelected(item);
     }
@@ -299,6 +318,8 @@ public  class ForecastFragment extends Fragment  {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd");
         return dateFormat.format(date);
     }
+
+
 
 
 
